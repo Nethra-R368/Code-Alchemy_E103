@@ -3,25 +3,40 @@ import fetch from "node-fetch";
 import cors from "cors";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-app.use(cors());
+/* ---------- MIDDLEWARE ---------- */
+app.use(cors({
+  origin: "*",
+  methods: ["POST", "GET"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(express.json());
 
+/* ---------- HEALTH CHECK ---------- */
+app.get("/", (req, res) => {
+  res.send("✅ AI Guide backend is running");
+});
+
+/* ---------- MAIN ASK ROUTE ---------- */
 app.post("/ask", async (req, res) => {
-  const { question, siteMap, url } = req.body;
+  try {
+    const { question, siteMap = [], url = "" } = req.body;
 
-  if (!question) return res.json({ answer: "Ask something." });
+    if (!question) {
+      return res.json({ answer: "No question provided." });
+    }
 
-  const links = (siteMap || [])
-    .map(l => `- ${l.text}: ${l.href}`)
-    .join("\n");
+    // Build readable link context
+    const links =
+      siteMap.length > 0
+        ? siteMap.map(l => `- ${l.text}: ${l.href}`).join("\n")
+        : "(No links found on page)";
 
-  const prompt = `
+    const prompt = `
 You are a website navigation assistant.
 
-Website URL: ${url}
+Website URL:
+${url}
 
 Available links:
 ${links}
@@ -29,28 +44,56 @@ ${links}
 User question:
 ${question}
 
-Answer with clear steps and links.
+Give clear step-by-step instructions using the links.
 `;
 
-  try {
-    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "llama3-70b-8192",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.1
-      })
-    });
+    const groqRes = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": \`Bearer ${process.env.GROQ_API_KEY}\`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama-3.1-70b-versatile",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.2
+        })
+      }
+    );
 
     const data = await groqRes.json();
-    res.json({ answer: data.choices?.[0]?.message?.content || "No answer." });
-  } catch (e) {
-    res.status(500).json({ answer: "AI server error." });
+
+    // 🔴 EXPLICIT ERROR VISIBILITY
+    if (!groqRes.ok) {
+      console.error("❌ GROQ ERROR:", data);
+      return res.status(500).json({
+        answer: "Groq API error",
+        debug: data
+      });
+    }
+
+    const answer = data?.choices?.[0]?.message?.content;
+
+    if (!answer) {
+      console.error("❌ EMPTY GROQ RESPONSE:", data);
+      return res.json({
+        answer: "Groq returned empty response",
+        debug: data
+      });
+    }
+
+    res.json({ answer });
+
+  } catch (err) {
+    console.error("❌ SERVER ERROR:", err);
+    res.status(500).json({ answer: "Server crashed." });
   }
 });
 
-app.listen(PORT, () => console.log("✅ AI backend running"));
+/* ---------- START SERVER ---------- */
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("✅ Server running on port", PORT);
+});
