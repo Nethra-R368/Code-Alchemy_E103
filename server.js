@@ -11,6 +11,7 @@ app.get("/", (req, res) => {
   res.send("AI backend running");
 });
 
+
 app.post("/ask", async (req, res) => {
   const { question, siteMap = [] } = req.body;
 
@@ -79,3 +80,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);
 });
+
