@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Navigator Pro</title>
+  <link rel="stylesheet" href="sidebar.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="glass-header">
+      <div class="header-main">
+        <div class="brand">
+          <div class="logo-dot"></div>
+          <h1>AI Navigator</h1>
+        </div>
+        <div class="actions">
+          <button id="clear-chat">🗑</button>
+          <button id="voice-output-btn" class="active">🔊</button>
+        </div>
+      </div>
+      <div class="api-section">
+        <div class="api-input-container">
+          <input type="password" id="api-key" placeholder="Groq API Key">
+        </div>
+      </div>
+    </header>
+
+    <div id="danger-alert" class="danger-banner hidden">
+      ⚠ Sensitive action detected
+    </div>
+
+    <div id="chat-container" class="chat-viewport">
+      <div class="message bot-msg">
+        <div class="msg-content">
+          Hello! I'm your AI Navigator. You can type or speak commands like:
+          <br><b>“Find login button”</b> or <b>“Click checkout”</b>.
+        </div>
+      </div>
+    </div>
+
+    <div id="loading" class="status-bar hidden">
+      <span>AI is analyzing...</span>
+    </div>
+
+    <footer class="input-footer">
+      <div class="input-wrapper">
+        <button id="voice-input-btn" class="icon-btn">🎤</button>
+        <textarea id="user-input" placeholder="Type or speak..."></textarea>
+        <button id="send-btn" class="send-btn">➤</button>
+      </div>
+    </footer>
+  </div>
+  <script src="sidebar.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "AI Sidebar Chatbot",
+  "version": "1.0",
+  "description": "An AI-powered sidebar chatbot with voice control and human-in-the-loop safety.",
+  "permissions": ["sidePanel", "activeTab", "scripting", "storage", "offscreen"],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "side_panel": {
+    "default_path": "sidebar/sidebar.html"
+  },
+  "action": {
+    "default_title": "Open AI Sidebar"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/content.js"]
+    }
+  ],
+  "host_permissions": ["<all_urls>"]
+}

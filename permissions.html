@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Microphone Permission</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #f0f2f5; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 400px; }
+        button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; }
+        button:hover { background: #2563eb; }
+        h1 { font-size: 20px; margin-bottom: 1rem; }
+        p { color: #64748b; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Microphone Access Required</h1>
+        <p>To use voice commands, Nethra needs permission to use your microphone. Please click the button below and select "Allow" when prompted.</p>
+        <button id="request-mic">Enable Microphone</button>
+        <p id="status" style="margin-top: 1rem; font-weight: bold;"></p>
+    </div>
+    <script>
+        document.getElementById('request-mic').addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(track => track.stop());
+                document.getElementById('status').innerText = "✅ Permission granted! You can close this tab.";
+                document.getElementById('status').style.color = "green";
+                setTimeout(() => window.close(), 1500);
+            } catch (err) {
+                document.getElementById('status').innerText = "❌ Error: " + err.message;
+                document.getElementById('status').style.color = "red";
+            }
+        });
+    </script>
+</body>
+</html>
