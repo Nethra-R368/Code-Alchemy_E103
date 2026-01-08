@@ -4,3 +4,4 @@
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Universal AI Website Guide installed.");
 });
+ 
